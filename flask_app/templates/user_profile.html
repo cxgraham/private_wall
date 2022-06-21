@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+</head>
+<body>
+    <div class="navbar">
+        <h1>CodingDojo Wall</h1>
+        <div class="nav-links">
+            <h2>Welcome, {{user.first_name}}!</h2>
+            <input type="hidden" name="sender_id" value={{user.first_name}}>
+            <a href="/users/logout">Logout</a>
+        </div>
+    </div>
+    <div class="message_wall">
+        <div class="received_messages">
+            <p>Message(s) for You</p>
+            <input type="hidden" name="user.messages" value={{user.messages}}>
+            {% for message in messages %}
+                <form action="/messages/delete/{{message.id}}", method="post">
+                <p>{{message.sender}} said:</p>
+                <input type="hidden" name="sender_id" value={{message.sender_id}}>
+                {{message.message_text}}
+                <input type="submit" value="Delete">
+                </form>
+            {% endfor %}
+        </div>
+        <div class="send_messages">
+            <p>Send Messages</p>
+            {% with messages = get_flashed_messages(category_filter = ['message']) %}        <!-- declare a variable called messages -->
+                {% if messages %}                               <!-- check if there are any messages -->
+                    {% for message in messages %}               <!-- loop through the messages -->
+                    <p>{{message}}</p>                      <!-- display each message in a paragraph tag -->
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            {% for user in users %}
+                {% if user.id != session.user_id %} 
+                    <form action="/messages/send", method="post">
+                        <input type="hidden" name="sender_id" value={{session.user_id}}>
+                        <p>Message {{user.first_name}}:</p>
+                        <input type="hidden" name="recipient_id" value={{user.id}}>
+                        <textarea name="message_text" cols="20" rows="5" value={{message_text}}></textarea>
+                        <input type="submit" value="Send">
+                    </form>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>
